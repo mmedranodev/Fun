@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atrapa el Café ☕</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #c89b7e 0%, #8b6f47 100%);
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .score {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .instructions {
+            font-size: 0.9em;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+        
+        .basket {
+            position: absolute;
+            bottom: 20px;
+            width: 100px;
+            height: 80px;
+            font-size: 4em;
+            cursor: pointer;
+            user-select: none;
+            transition: left 0.1s;
+            z-index: 10;
+        }
+        
+        .coffee-item {
+            position: absolute;
+            font-size: 3em;
+            cursor: pointer;
+            user-select: none;
+            animation: fall linear;
+            z-index: 5;
+        }
+        
+        @keyframes fall {
+            from {
+                top: -100px;
+            }
+            to {
+                top: 100vh;
+            }
+        }
+        
+        .success-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .success-screen.show {
+            display: flex;
+            animation: fadeIn 0.5s;
+        }
+        
+        .success-content {
+            text-align: center;
+            background: #fff9f5;
+            padding: 50px;
+            border-radius: 25px;
+            border: 4px solid #d4a574;
+            max-width: 500px;
+        }
+        
+        .success-content .emoji {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .success-content h2 {
+            font-size: 2.5em;
+            color: #6f4e37;
+            margin-bottom: 20px;
+        }
+        
+        .success-content p {
+            font-size: 1.3em;
+            color: #6f4e37;
+            margin-bottom: 10px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .final-score {
+            font-size: 2em;
+            color: #a67c52;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🎮 Atrapa el Café</h1>
+            <div class="score">☕ Cafés atrapados: <span id="score">0</span>/10</div>
+            <div class="instructions">Mueve la canasta con el mouse o toca la pantalla</div>
+        </div>
+        
+        <div class="basket" id="basket">🧺</div>
+    </div>
+    
+    <div class="success-screen" id="successScreen">
+        <div class="success-content">
+            <div class="emoji">🎉</div>
+            <h2>¡Ganaste!</h2>
+            <div class="final-score">10/10 Cafés ☕</div>
+            <p style="font-size: 1.5em; margin: 20px 0;">¿Vamos por un café?</p>
+            <p style="color: #888; font-size: 0.9em; margin-top: 30px;">
+                ¡Te lo ganaste! ☕❤️
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const basket = document.getElementById('basket');
+        const gameContainer = document.querySelector('.game-container');
+        const scoreDisplay = document.getElementById('score');
+        const successScreen = document.getElementById('successScreen');
+        
+        let score = 0;
+        let gameActive = true;
+        let spawnInterval;
+        
+        // Move basket with mouse
+        document.addEventListener('mousemove', (e) => {
+            if (!gameActive) return;
+            const x = e.clientX - 50; // Center the basket
+            basket.style.left = Math.max(0, Math.min(window.innerWidth - 100, x)) + 'px';
+        });
+        
+        // Touch support
+        document.addEventListener('touchmove', (e) => {
+            if (!gameActive) return;
+            const touch = e.touches[0];
+            const x = touch.clientX - 50;
+            basket.style.left = Math.max(0, Math.min(window.innerWidth - 100, x)) + 'px';
+        });
+        
+        function createCoffee() {
+            if (!gameActive) return;
+            
+            const coffee = document.createElement('div');
+            coffee.className = 'coffee-item';
+            coffee.textContent = '☕';
+            coffee.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+            
+            const duration = 3 + Math.random() * 2; // 3-5 seconds
+            coffee.style.animationDuration = duration + 's';
+            
+            gameContainer.appendChild(coffee);
+            
+            // Check for collision
+            const checkCollision = setInterval(() => {
+                const coffeeRect = coffee.getBoundingClientRect();
+                const basketRect = basket.getBoundingClientRect();
+                
+                if (
+                    coffeeRect.bottom >= basketRect.top &&
+                    coffeeRect.top <= basketRect.bottom &&
+                    coffeeRect.right >= basketRect.left &&
+                    coffeeRect.left <= basketRect.right
+                ) {
+                    // Caught!
+                    score++;
+                    scoreDisplay.textContent = score;
+                    coffee.remove();
+                    clearInterval(checkCollision);
+                    
+                    // Particle effect
+                    createParticles(coffeeRect.left, coffeeRect.top);
+                    
+                    if (score >= 10) {
+                        endGame();
+                    }
+                } else if (coffeeRect.top > window.innerHeight) {
+                    // Missed
+                    coffee.remove();
+                    clearInterval(checkCollision);
+                }
+            }, 50);
+        }
+        
+        function createParticles(x, y) {
+            for (let i = 0; i < 5; i++) {
+                const particle = document.createElement('div');
+                particle.textContent = '✨';
+                particle.style.position = 'absolute';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.fontSize = '1.5em';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '100';
+                
+                gameContainer.appendChild(particle);
+                
+                const angle = (Math.PI * 2 * i) / 5;
+                const distance = 50;
+                const endX = x + Math.cos(angle) * distance;
+                const endY = y + Math.sin(angle) * distance;
+                
+                particle.animate([
+                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                    { transform: `translate(${endX - x}px, ${endY - y}px) scale(0)`, opacity: 0 }
+                ], {
+                    duration: 500,
+                    easing: 'ease-out'
+                }).onfinish = () => particle.remove();
+            }
+        }
+        
+        function endGame() {
+            gameActive = false;
+            clearInterval(spawnInterval);
+            
+            // Remove all falling coffee
+            document.querySelectorAll('.coffee-item').forEach(c => c.remove());
+            
+            setTimeout(() => {
+                successScreen.classList.add('show');
+            }, 500);
+        }
+        
+        // Start game
+        basket.style.left = (window.innerWidth / 2 - 50) + 'px';
+        
+        // Spawn coffee every 800ms
+        spawnInterval = setInterval(createCoffee, 800);
+        
+        // Initial coffee
+        createCoffee();
+    </script>
+</body>
+</html>
