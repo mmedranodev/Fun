@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bola Mágica de Café ☕</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #c89b7e 0%, #8b6f47 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Floating coffee beans */
+        .coffee-bean {
+            position: absolute;
+            font-size: 2em;
+            opacity: 0.1;
+            animation: floatBean 20s infinite ease-in-out;
+        }
+        
+        .coffee-bean:nth-child(1) { top: 10%; left: 15%; animation-delay: 0s; }
+        .coffee-bean:nth-child(2) { top: 70%; left: 10%; animation-delay: 3s; }
+        .coffee-bean:nth-child(3) { top: 25%; right: 10%; animation-delay: 6s; }
+        .coffee-bean:nth-child(4) { bottom: 15%; right: 20%; animation-delay: 9s; }
+        
+        @keyframes floatBean {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+        }
+        
+        .container {
+            text-align: center;
+            background: #fff9f5;
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(139, 111, 71, 0.4);
+            max-width: 600px;
+            position: relative;
+            z-index: 10;
+            border: 4px solid #d4a574;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #6f4e37;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            color: #6f4e37;
+            margin-bottom: 40px;
+            opacity: 0.8;
+        }
+        
+        .ball-container {
+            margin: 40px 0;
+            position: relative;
+        }
+        
+        .ball {
+            width: 250px;
+            height: 250px;
+            margin: 0 auto;
+            background: radial-gradient(circle at 30% 30%, #4a4a4a, #000);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            user-select: none;
+        }
+        
+        .ball:hover {
+            transform: scale(1.05);
+        }
+        
+        .ball:active {
+            transform: scale(0.98);
+        }
+        
+        .ball.shaking {
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+        
+        .window {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #1a1a2e, #0f0f1e);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+        
+        .triangle {
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 70px solid #4169e1;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        .triangle.show {
+            opacity: 1;
+        }
+        
+        .answer {
+            position: absolute;
+            color: white;
+            font-size: 0.85em;
+            font-weight: bold;
+            text-align: center;
+            max-width: 90px;
+            line-height: 1.2;
+            opacity: 0;
+            transition: opacity 0.5s 0.3s;
+        }
+        
+        .answer.show {
+            opacity: 1;
+        }
+        
+        .instruction {
+            font-size: 1.1em;
+            color: #6f4e37;
+            margin-top: 30px;
+            font-style: italic;
+        }
+        
+        .question-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #d4a574;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background: white;
+            color: #6f4e37;
+            font-family: inherit;
+        }
+        
+        .question-input:focus {
+            outline: none;
+            border-color: #a67c52;
+        }
+        
+        .ask-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            background: linear-gradient(135deg, #d4a574 0%, #a67c52 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            margin-bottom: 30px;
+        }
+        
+        .ask-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(166, 124, 82, 0.5);
+        }
+        
+        .ask-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .reveal {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .reveal.show {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .final-message {
+            font-size: 1.5em;
+            color: #6f4e37;
+            margin: 30px 0;
+        }
+        
+        .accept-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            background: linear-gradient(135deg, #d4a574 0%, #a67c52 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .accept-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(166, 124, 82, 0.5);
+        }
+        
+        .success {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .success.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="coffee-bean">🫘</div>
+    <div class="coffee-bean">🫘</div>
+    <div class="coffee-bean">🫘</div>
+    <div class="coffee-bean">🫘</div>
+    
+    <div class="container">
+        <div id="mainScreen">
+            <h1>Bola Mágica de Café ☕</h1>
+            <p class="subtitle">Pregunta lo que quieras... (pero la respuesta siempre será sobre café)</p>
+            
+            <input 
+                type="text" 
+                class="question-input" 
+                id="questionInput" 
+                placeholder="Escribe tu pregunta aquí..."
+            >
+            
+            <button class="ask-btn" id="askBtn">Preguntar a la Bola 🎱</button>
+            
+            <div class="ball-container">
+                <div class="ball" id="ball">
+                    <div class="window">
+                        <div class="triangle" id="triangle"></div>
+                        <div class="answer" id="answer"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="instruction">Haz clic en el botón o agita la bola para obtener tu respuesta...</p>
+        </div>
+        
+        <div class="reveal" id="reveal">
+            <div style="font-size: 5em; margin-bottom: 20px;">✨</div>
+            <h1>La Bola Mágica ha Hablado</h1>
+            <p class="final-message">La respuesta es clara: ¡Es momento de café! ☕</p>
+            <p style="font-size: 1.3em; color: #6f4e37; margin: 20px 0;">
+                ¿Vamos por un café?
+            </p>
+            <button class="accept-btn" id="acceptBtn">¡Por supuesto! ☕</button>
+        </div>
+        
+        <div class="success" id="success">
+            <div style="font-size: 5em; margin-bottom: 20px;">🎉</div>
+            <h1>¡Excelente decisión!</h1>
+            <p style="font-size: 1.5em; color: #6f4e37; margin-top: 20px;">
+                ¡Nos vemos en la cafetería! ☕❤️
+            </p>
+            <p style="color: #888; font-size: 0.9em; margin-top: 30px;">
+                (La bola mágica nunca se equivoca 😄)
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const ball = document.getElementById('ball');
+        const triangle = document.getElementById('triangle');
+        const answer = document.getElementById('answer');
+        const askBtn = document.getElementById('askBtn');
+        const questionInput = document.getElementById('questionInput');
+        const mainScreen = document.getElementById('mainScreen');
+        const reveal = document.getElementById('reveal');
+        const success = document.getElementById('success');
+        const acceptBtn = document.getElementById('acceptBtn');
+        
+        const answers = [
+            "Sí, con café ☕",
+            "Definitivamente café",
+            "Las señales apuntan a café",
+            "Sin duda, café ☕",
+            "Es cierto, necesitas café",
+            "Café es la respuesta",
+            "Por supuesto, café ☕",
+            "100% café",
+            "La respuesta es café",
+            "Sí, pero primero café ☕"
+        ];
+        
+        let shakeCount = 0;
+        let lastShake = 0;
+        
+        function showAnswer() {
+            if (questionInput.value.trim() === '') {
+                questionInput.focus();
+                questionInput.style.borderColor = '#a67c52';
+                setTimeout(() => {
+                    questionInput.style.borderColor = '#d4a574';
+                }, 500);
+                return;
+            }
+            
+            ball.classList.add('shaking');
+            askBtn.disabled = true;
+            
+            setTimeout(() => {
+                ball.classList.remove('shaking');
+                const randomAnswer = answers[Math.floor(Math.random() * answers.length)];
+                answer.textContent = randomAnswer;
+                triangle.classList.add('show');
+                answer.classList.add('show');
+                
+                shakeCount++;
+                
+                if (shakeCount >= 3) {
+                    setTimeout(() => {
+                        mainScreen.style.display = 'none';
+                        reveal.classList.add('show');
+                    }, 2000);
+                } else {
+                    setTimeout(() => {
+                        triangle.classList.remove('show');
+                        answer.classList.remove('show');
+                        askBtn.disabled = false;
+                        questionInput.value = '';
+                        questionInput.placeholder = `Pregunta de nuevo... (${3 - shakeCount} restantes)`;
+                    }, 3000);
+                }
+            }, 500);
+        }
+        
+        askBtn.addEventListener('click', showAnswer);
+        
+        questionInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                showAnswer();
+            }
+        });
+        
+        ball.addEventListener('click', () => {
+            if (!askBtn.disabled && questionInput.value.trim() !== '') {
+                showAnswer();
+            }
+        });
+        
+        acceptBtn.addEventListener('click', () => {
+            reveal.classList.remove('show');
+            success.classList.add('show');
+        });
+    </script>
+</body>
+</html>
