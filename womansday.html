@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Para ti — 8 de Marzo</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Quicksand:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --rose: #e8799a;
+        --blush: #f5c6d8;
+        --deep: #2a1520;
+        --cream: #fdf6f0;
+        --gold: #d4956a;
+        --lavender: #c9a7c4;
+      }
+
+      body {
+        font-family: "Quicksand", sans-serif;
+        background: var(--deep);
+        color: var(--cream);
+        min-height: 100vh;
+        overflow-x: hidden;
+        cursor: default;
+      }
+
+      /* ── PETALS RAIN ── */
+      #petals-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ── PAGES ── */
+      .page {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 24px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.8s ease;
+        z-index: 10;
+      }
+      .page.active {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      /* ── PAGE 1 – COVER ── */
+      #page1 .date {
+        font-family: "Quicksand", sans-serif;
+        font-weight: 300;
+        font-size: 0.75rem;
+        letter-spacing: 0.4em;
+        text-transform: uppercase;
+        color: var(--rose);
+        margin-bottom: 32px;
+      }
+      #page1 .title {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(3rem, 12vw, 7rem);
+        font-weight: 300;
+        font-style: italic;
+        line-height: 1.05;
+        text-align: center;
+        color: var(--cream);
+        text-shadow: 0 0 60px rgba(232, 121, 154, 0.3);
+      }
+      #page1 .subtitle {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(1rem, 4vw, 1.5rem);
+        font-weight: 300;
+        font-style: italic;
+        color: var(--blush);
+        margin-top: 16px;
+        opacity: 0.8;
+      }
+      #page1 .big-flower {
+        font-size: clamp(4rem, 15vw, 8rem);
+        margin: 40px 0;
+        display: block;
+        animation: bloomSpin 8s ease-in-out infinite;
+        filter: drop-shadow(0 0 30px rgba(232, 121, 154, 0.5));
+      }
+
+      @keyframes bloomSpin {
+        0%,
+        100% {
+          transform: rotate(-5deg) scale(1);
+        }
+        50% {
+          transform: rotate(5deg) scale(1.08);
+        }
+      }
+
+      /* ── PAGE 2 – ESTRELLAS ── */
+      #page2 .stars-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        max-width: 480px;
+        width: 100%;
+        margin: 32px 0;
+      }
+      .star-card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(232, 121, 154, 0.2);
+        border-radius: 16px;
+        padding: 20px 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .star-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          circle at 50% 0%,
+          rgba(232, 121, 154, 0.15),
+          transparent 70%
+        );
+        opacity: 0;
+        transition: opacity 0.4s;
+      }
+      .star-card:hover::before,
+      .star-card.revealed::before {
+        opacity: 1;
+      }
+      .star-card:hover {
+        border-color: var(--rose);
+        transform: translateY(-4px);
+      }
+      .star-card.revealed {
+        border-color: var(--rose);
+        background: rgba(232, 121, 154, 0.08);
+      }
+
+      .star-card .icon {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 8px;
+        transition: transform 0.3s;
+      }
+      .star-card:hover .icon {
+        transform: scale(1.2);
+      }
+      .star-card .label {
+        font-size: 0.65rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--rose);
+        opacity: 0.7;
+      }
+      .star-card .message {
+        font-family: "Cormorant Garamond", serif;
+        font-style: italic;
+        font-size: 0.9rem;
+        color: var(--cream);
+        line-height: 1.5;
+        margin-top: 8px;
+        display: none;
+      }
+      .star-card.revealed .message {
+        display: block;
+      }
+      .star-card.revealed .label {
+        display: none;
+      }
+
+      /* ── PAGE 3 – CARTA ── */
+      #page3 .letter-wrap {
+        max-width: 480px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(201, 167, 196, 0.25);
+        border-radius: 24px;
+        padding: 40px 32px;
+        position: relative;
+      }
+      #page3 .letter-wrap::before {
+        content: "❝";
+        font-family: "Cormorant Garamond", serif;
+        font-size: 5rem;
+        color: var(--rose);
+        opacity: 0.2;
+        position: absolute;
+        top: 8px;
+        left: 20px;
+        line-height: 1;
+      }
+      .letter-line {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(1rem, 3.5vw, 1.2rem);
+        font-style: italic;
+        font-weight: 300;
+        line-height: 1.9;
+        color: var(--cream);
+        opacity: 0;
+        transform: translateY(12px);
+        transition:
+          opacity 0.6s ease,
+          transform 0.6s ease;
+      }
+      .letter-line.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .letter-line .highlight {
+        color: var(--blush);
+        font-style: normal;
+        font-weight: 400;
+      }
+      #page3 .sign {
+        margin-top: 32px;
+        font-family: "Cormorant Garamond", serif;
+        font-size: 1.1rem;
+        color: var(--rose);
+        font-style: italic;
+        text-align: right;
+        opacity: 0;
+        transition: opacity 0.8s ease 1.5s;
+      }
+      #page3 .sign.visible {
+        opacity: 1;
+      }
+
+      /* ── PAGE 4 – FINAL ── */
+      #page4 .heart-big {
+        font-size: clamp(5rem, 20vw, 10rem);
+        animation: heartbeat 1.5s ease-in-out infinite;
+        filter: drop-shadow(0 0 40px rgba(232, 121, 154, 0.7));
+        display: block;
+        margin-bottom: 32px;
+      }
+      @keyframes heartbeat {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        14% {
+          transform: scale(1.12);
+        }
+        28% {
+          transform: scale(1);
+        }
+        42% {
+          transform: scale(1.08);
+        }
+        70% {
+          transform: scale(1);
+        }
+      }
+      #page4 .final-text {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(1.4rem, 5vw, 2.2rem);
+        font-style: italic;
+        font-weight: 300;
+        text-align: center;
+        line-height: 1.6;
+        color: var(--cream);
+        max-width: 420px;
+      }
+      #page4 .final-text em {
+        color: var(--rose);
+        font-style: normal;
+      }
+      #page4 .date-final {
+        margin-top: 24px;
+        font-size: 0.75rem;
+        letter-spacing: 0.35em;
+        color: var(--lavender);
+        text-transform: uppercase;
+        opacity: 0.7;
+      }
+
+      /* ── BUTTON ── */
+      .btn {
+        margin-top: 40px;
+        padding: 14px 40px;
+        background: transparent;
+        border: 1px solid rgba(232, 121, 154, 0.5);
+        border-radius: 100px;
+        color: var(--cream);
+        font-family: "Quicksand", sans-serif;
+        font-size: 0.8rem;
+        font-weight: 500;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.35s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .btn::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(232, 121, 154, 0.2),
+          rgba(201, 167, 196, 0.1)
+        );
+        opacity: 0;
+        transition: opacity 0.35s;
+      }
+      .btn:hover::before {
+        opacity: 1;
+      }
+      .btn:hover {
+        border-color: var(--rose);
+        transform: scale(1.03);
+      }
+
+      /* ── PAGE TITLE ── */
+      .page-title {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(1.6rem, 6vw, 2.5rem);
+        font-style: italic;
+        font-weight: 300;
+        text-align: center;
+        color: var(--cream);
+        margin-bottom: 8px;
+      }
+      .page-subtitle {
+        font-size: 0.75rem;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--rose);
+        opacity: 0.7;
+        text-align: center;
+        margin-bottom: 4px;
+      }
+
+      /* ── DOTS ── */
+      #dots {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        z-index: 20;
+      }
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transition: all 0.3s;
+      }
+      .dot.active {
+        background: var(--rose);
+        transform: scale(1.4);
+      }
+
+      /* ── BACKGROUND GLOW ── */
+      .bg-glow {
+        position: fixed;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1;
+        filter: blur(80px);
+      }
+      .glow1 {
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(
+          circle,
+          rgba(232, 121, 154, 0.12),
+          transparent 70%
+        );
+        top: -100px;
+        right: -100px;
+        animation: glowPulse 6s ease-in-out infinite;
+      }
+      .glow2 {
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(
+          circle,
+          rgba(201, 167, 196, 0.1),
+          transparent 70%
+        );
+        bottom: -80px;
+        left: -80px;
+        animation: glowPulse 8s ease-in-out infinite reverse;
+      }
+      @keyframes glowPulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 0.8;
+        }
+        50% {
+          transform: scale(1.2);
+          opacity: 1;
+        }
+      }
+
+      /* stars count badge */
+      #stars-count {
+        font-size: 0.7rem;
+        letter-spacing: 0.2em;
+        color: var(--lavender);
+        text-transform: uppercase;
+        margin-bottom: 12px;
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-glow glow1"></div>
+    <div class="bg-glow glow2"></div>
+    <canvas id="petals-canvas"></canvas>
+
+    <!-- PAGE 1 – PORTADA -->
+    <div class="page active" id="page1">
+      <span class="date">8 de Marzo · Día de la Mujer</span>
+      <span class="big-flower">🌸</span>
+      <h1 class="title">Para ti,<br />que iluminas<br />mi mundo</h1>
+      <p class="subtitle">Hay algo que quiero que sepas…</p>
+      <button class="btn" onclick="goTo(2)">Abrir ✦</button>
+    </div>
+
+    <!-- PAGE 2 – ESTRELLAS -->
+    <div class="page" id="page2">
+      <p class="page-subtitle">Descubre cada estrella</p>
+      <h2 class="page-title">Lo que veo en ti</h2>
+      <p id="stars-count">Toca cada una · 0 / 6 descubiertas</p>
+      <div class="stars-grid">
+        <div class="star-card" onclick="revealStar(this)">
+          <span class="icon">✨</span>
+          <span class="label">Descubrir</span>
+          <span class="message"
+            >Tu sonrisa desordena mis pensamientos de la manera más bonita</span
+          >
+        </div>
+        <div class="star-card" onclick="revealStar(this)">
+          <span class="icon">🌙</span>
+          <span class="label">Descubrir</span>
+          <span class="message"
+            >Eres la calma que no sabía que me hacía falta</span
+          >
+        </div>
+        <div class="star-card" onclick="revealStar(this)">
+          <span class="icon">🌺</span>
+          <span class="label">Descubrir</span>
+          <span class="message"
+            >Admiro la fuerza que llevas contigo sin que nadie lo vea</span
+          >
+        </div>
+        <div class="star-card" onclick="revealStar(this)">
+          <span class="icon">💫</span>
+          <span class="label">Descubrir</span>
+          <span class="message"
+            >Cada vez que estás cerca, el mundo se vuelve un poco más
+            interesante</span
+          >
+        </div>
+        <div class="star-card" onclick="revealStar(this)">
+          <span class="icon">🕊️</span>
+          <span class="label">Descubrir</span>
+          <span class="message"
+            >Haces que quiera ser mejor, sin siquiera intentarlo</span
+          >
+        </div>
+        <div class="star-card" onclick="revealStar(this)">
+          <span class="icon">🌹</span>
+          <span class="label">Descubrir</span>
+          <span class="message"
+            >Si pudiera elegir a alguien con quien compartir un café cada día,
+            te elegiría a ti</span
+          >
+        </div>
+      </div>
+      <button
+        class="btn"
+        id="btn2"
+        onclick="goTo(3)"
+        style="opacity: 0.3; pointer-events: none"
+      >
+        Continuar →
+      </button>
+    </div>
+
+    <!-- PAGE 3 – CARTA -->
+    <div class="page" id="page3">
+      <h2 class="page-title" style="margin-bottom: 24px">Una carta para ti</h2>
+      <div class="letter-wrap">
+        <p class="letter-line">Hoy el mundo te celebra,</p>
+        <p class="letter-line">
+          pero yo te celebro <span class="highlight">cada día</span>.
+        </p>
+        <p class="letter-line">No porque sea 8 de marzo,</p>
+        <p class="letter-line">sino porque existes,</p>
+        <p class="letter-line">
+          y eso ya cambia <span class="highlight">todo</span>.
+        </p>
+        <p class="letter-line" style="margin-top: 16px">
+          No sé qué somos todavía,
+        </p>
+        <p class="letter-line">pero sé que cuando estás cerca</p>
+        <p class="letter-line">
+          algo en mí <span class="highlight">siente</span> que vale la pena.
+        </p>
+        <p class="letter-line" style="margin-top: 16px">
+          Feliz día, mujer extraordinaria.
+        </p>
+        <p class="sign">— Alguien que te ve de verdad 🌸</p>
+      </div>
+      <button class="btn" onclick="goTo(4)">Un último momento →</button>
+    </div>
+
+    <!-- PAGE 4 – FINAL -->
+    <div class="page" id="page4">
+      <span class="heart-big">🩷</span>
+      <p class="final-text">
+        Gracias por ser exactamente <em>quien eres</em>.<br />
+        El mundo es más bonito<br />porque tú estás en él.
+      </p>
+      <p class="date-final">8 de Marzo · Con todo el cariño del mundo</p>
+      <button class="btn" onclick="goTo(1)" style="margin-top: 48px">
+        Volver al inicio 🌸
+      </button>
+    </div>
+
+    <!-- DOTS -->
+    <div id="dots">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+
+    <script>
+      // ── NAVIGATION ──
+      let currentPage = 1;
+      function goTo(n) {
+        document
+          .getElementById("page" + currentPage)
+          .classList.remove("active");
+        document.getElementById("page" + n).classList.add("active");
+        document
+          .querySelectorAll(".dot")
+          .forEach((d, i) => d.classList.toggle("active", i === n - 1));
+        currentPage = n;
+        if (n === 3) startLetter();
+      }
+
+      // ── STARS ──
+      let revealed = 0;
+      function revealStar(el) {
+        if (el.classList.contains("revealed")) return;
+        el.classList.add("revealed");
+        revealed++;
+        document.getElementById("stars-count").textContent =
+          `Toca cada una · ${revealed} / 6 descubiertas`;
+        createBurst(el);
+        if (revealed === 6) {
+          const btn = document.getElementById("btn2");
+          btn.style.opacity = "1";
+          btn.style.pointerEvents = "all";
+        }
+      }
+      function createBurst(el) {
+        const rect = el.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        for (let i = 0; i < 8; i++) {
+          const p = document.createElement("div");
+          p.textContent = ["🌸", "✨", "💕", "🌺", "💫"][
+            Math.floor(Math.random() * 5)
+          ];
+          p.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;font-size:1.2rem;pointer-events:none;z-index:999;transition:all 0.8s ease;`;
+          document.body.appendChild(p);
+          const angle = (i / 8) * Math.PI * 2;
+          const dist = 60 + Math.random() * 40;
+          setTimeout(() => {
+            p.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`;
+            p.style.opacity = "0";
+          }, 10);
+          setTimeout(() => p.remove(), 900);
+        }
+      }
+
+      // ── LETTER ANIMATION ──
+      function startLetter() {
+        const lines = document.querySelectorAll("#page3 .letter-line");
+        const sign = document.querySelector("#page3 .sign");
+        lines.forEach((l, i) => {
+          setTimeout(() => l.classList.add("visible"), i * 280);
+        });
+        setTimeout(
+          () => sign.classList.add("visible"),
+          lines.length * 280 + 400,
+        );
+      }
+
+      // ── PETALS CANVAS ──
+      const canvas = document.getElementById("petals-canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      window.addEventListener("resize", () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+
+      const EMOJIS = ["🌸", "🌺", "✿", "❀", "🪷"];
+      const petals = Array.from({ length: 22 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        size: 14 + Math.random() * 14,
+        speed: 0.4 + Math.random() * 0.7,
+        drift: (Math.random() - 0.5) * 0.6,
+        spin: (Math.random() - 0.5) * 0.025,
+        angle: Math.random() * Math.PI * 2,
+        emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+        opacity: 0.25 + Math.random() * 0.35,
+      }));
+
+      function drawPetals() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        petals.forEach((p) => {
+          ctx.save();
+          ctx.globalAlpha = p.opacity;
+          ctx.font = p.size + "px serif";
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.angle);
+          ctx.fillText(p.emoji, -p.size / 2, p.size / 2);
+          ctx.restore();
+          p.y += p.speed;
+          p.x += p.drift;
+          p.angle += p.spin;
+          if (p.y > canvas.height + 30) {
+            p.y = -30;
+            p.x = Math.random() * canvas.width;
+          }
+        });
+        requestAnimationFrame(drawPetals);
+      }
+      drawPetals();
+    </script>
+  </body>
+</html>
